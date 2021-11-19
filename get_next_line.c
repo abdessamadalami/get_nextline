@@ -4,7 +4,8 @@
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ael-oual <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
+/*                                                +#+#+
+ *                                                #+#+#+   +#+           */
 /*   Created: 2021/11/18 08:10:04 by ael-oual          #+#    #+#             */
 /*   Updated: 2021/11/18 09:18:31 by ael-oual         ###   ########.fr       */
 /*                                                                            */
@@ -15,14 +16,14 @@
 #include<unistd.h>
 #include <fcntl.h>
 #include<stdlib.h>
+#define BUFFER_SIZE 1
+
 char *get_next_line(int fd)
 {
 	char *s;
-	s = malloc(265);
-//   ssize_t k =  read(fd);
-  ssize_t k = read(fd, s, 300);
-  strlen(s);
-  printf("%zu %s",k,s);
+	s = malloc(BUFFER_SIZE);
+  ssize_t k = read(fd, s, BUFFER_SIZE);
+  printf("%zu %s ",k,s);
   return 0;
 }
 
