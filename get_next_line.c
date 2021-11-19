@@ -16,15 +16,17 @@
 #include<unistd.h>
 #include <fcntl.h>
 #include<stdlib.h>
-#define BUFFER_SIZE 1
+#define BUFFER_SIZE 4
+
 
 char *get_next_line(int fd)
 {
 	char *s;
+	ssize_t k;
 	s = malloc(BUFFER_SIZE);
-  ssize_t k = read(fd, s, BUFFER_SIZE);
-  printf("%zu %s ",k,s);
-  return 0;
+   	k = read(fd, s, BUFFER_SIZE);
+	printf("%zd ",k);
+  return s;
 }
 
 int main()
@@ -32,10 +34,12 @@ int main()
 
  int fd = open("test.txt", O_RDWR);
  char c; 
- int bytes;
-   printf(" %d ",fd);
+ int bytes = 0;
 
-    get_next_line(fd);
-
+ while ( bytes < 9)
+ {
+     printf(" %s ",(get_next_line(fd)));
+	 bytes++;
+ }
  close(fd);  
 }
