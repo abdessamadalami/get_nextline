@@ -18,14 +18,34 @@
 #include<stdlib.h>
 #define BUFFER_SIZE 4
 
+int chek_fun(char *s)
+{
+   int index;
+   index = 0;
+   while(s[index]!= '\0')
+   {
+   if(s[index] == '\n')
+	   return 1;
+   index++;
+   }
+   return 0;
+}
 
 char *get_next_line(int fd)
 {
-	char *s;
+	static char *s;
+	static int i;
 	ssize_t k;
 	s = malloc(BUFFER_SIZE);
    	k = read(fd, s, BUFFER_SIZE);
-	printf("%zd ",k);
+	if(chek_fun(s))
+	{
+		printf("\n");
+		return get_next_line(fd);
+		printf("_d_");
+	}
+	i++;
+//	printf(" %d ",i);
   return s;
 }
 
@@ -33,13 +53,15 @@ int main()
 {
 
  int fd = open("test.txt", O_RDWR);
- char c; 
+ char *c; 
  int bytes = 0;
-
- while ( bytes < 9)
+ 
+while (1)
  {
-     printf(" %s ",(get_next_line(fd)));
-	 bytes++;
+     c = get_next_line(fd);
+	 printf("%s",c);
+	 if(c[0]=='\0')
+		 break;
  }
  close(fd);  
 }
