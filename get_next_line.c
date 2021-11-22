@@ -110,6 +110,8 @@ char *get_next_line(int fd)
 	else
 		str = 0;
 	line[i+1] = 0;
+	if(*line == '\n')
+		return get_next_line(fd);
 //	printf("%s",line);
   return (line);
 }
