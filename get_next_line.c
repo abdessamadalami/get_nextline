@@ -16,104 +16,75 @@
 #include<unistd.h>
 #include <fcntl.h>
 #include<stdlib.h>
-#define BUFFER_SIZE 3
-#include"libft.h"
-static char	*ft_strcat_p(char *dest, const char *src, int position)
-{
-	int	len;
-	int	i;
+#define BUFFER_SIZE 300
+#include"get_next_line.h"
 
-	len = 0;
-	i = 0;
-	while (dest[i] != '\0' && position != 0)
-		i++;
-	while (src[len] != '\0')
-	{
-		dest[i] = src[len];
-		i++;
-		len++;
-	}
-	dest[i] = '\0';
-	return (dest);
-}
-
-char	*ft_strjoin(const char *s1, const char *s2)
+int	check_fun(char *s)
 {
-	int		index;
-	int		length;
-	char	*ptr;
+	int index;
 
 	index = 0;
-	
-	length = ft_strlen(s1) + ft_strlen(s2);
-	ptr = malloc(length);
-	if (ptr == NULL)
-		return (0);
-	ft_strcat_p(ptr, s1, 0);
-	ft_strcat_p(ptr, s2, 1);
-	return (ptr);
-}
-
-int chek_fun(char *s)
-{
-   int index;
-   index = 0;
-   while(s[index]!= '\0')
-   {
-   if(s[index] == '\n')
-	   return 0;
-   index++;
-   }
-   return 1;
-}
-
-int chek_back_s(char *s)
-{
-   int index;
-   index = 0;
-   while(s[index]!= '\0')
-   {
-   if(s[index] == '\n' || s[index+1]=='\0')
-	   return index;
-   index++;
-   }
-   if(index == 0)
-	   return 1;
-   return 0;
-}
-
-char *get_next_line(int fd)
-{
-	char		*ptr;
-	char		*line;
-	int			i;
-	static char	*str;
-	ssize_t		k;
-	i = 0;
-	ptr = 0;	
-	line = malloc( BUFFER_SIZE);
-	if (str != NULL)
-		line = ft_strjoin(line, str);
-	while (chek_fun(line))
+	while (s[index] != '\0')
 	{
-		ptr = malloc(BUFFER_SIZE);
-		 k = read(fd, ptr, BUFFER_SIZE);
-		 if(k == 0)
-			 break;
-		line = ft_strjoin(line, ptr);
-		if(!chek_fun(line))
-			break;
+		if(s[index] == '\n')
+			return (0);
+		index++;
 	}
-	i = chek_back_s(line);
-	if(line[i+2] !='\0' && line[i+2] != '\n')
+	return (1);
+}
+
+int check_back_s(char *s)
+{
+	int index;
+
+	index = 0;
+	while (s[index] != '\0')
+	{
+		if(s[index] == '\n')
+			return (index);
+		index++;
+	}
+	return (0);
+}
+
+char	*d_line(char *line)
+{
+	int		i;
+	char	*str;
+
+	i = check_back_s(line);
+	if(line[i + 1] != '\0')
 		str = ft_strdup(line + i + 1);
 	else
 		str = 0;
-	line[i+1] = 0;
-	if(*line == '\n')
-		return get_next_line(fd);
-//	printf("%s",line);
-  return (line);
+	line[i + 1] = 0;
+	return (str);
+}
+
+char	*get_next_line(int fd)
+{
+	char		*ptr;
+	char		*line;
+	static char	*str;
+	ssize_t		k;
+
+	if(BUFFER_SIZE <= 0)
+		return (0);
+	line = malloc(BUFFER_SIZE);
+	if (str != NULL)
+		line = ft_strjoin(line, str);
+	while (check_fun(line) && k != 0)
+	{
+		ptr = malloc(BUFFER_SIZE);
+	   	k = read(fd, ptr, BUFFER_SIZE);
+		if(k < 0)
+			return (0);
+		line = ft_strjoin(line, ptr);
+	}
+	str = d_line(line);
+	if (*line == '\n')
+		return (get_next_line(fd));
+	return (line);
 }
 
 int main()
@@ -128,7 +99,7 @@ while (1)
      c = get_next_line(fd);
 	 if(*c == 0)
 		 break;
-	 printf("___ %s", c);
+	 printf("-----> %s", c);
 	 bytes++;
  }
  close(fd);  
