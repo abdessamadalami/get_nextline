@@ -6,11 +6,11 @@
 /*   By: ael-oual <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 07:58:10 by ael-oual          #+#    #+#             */
-/*   Updated: 2021/11/23 08:12:17 by ael-oual         ###   ########.fr       */
+/*   Updated: 2021/11/23 12:02:35 by ael-oual         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <stdlib.h>
-
+#include<stdio.h>
 size_t	ft_strlen(const char *str)
 {
 	int	i;
@@ -60,7 +60,7 @@ static char	*ft_strcat_p(char *dest, const char *src, int position)
 	return (dest);
 }
 
-char	*ft_strjoin(const char *s1, const char *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	int		index;
 	int		length;
@@ -68,10 +68,11 @@ char	*ft_strjoin(const char *s1, const char *s2)
 
 	index = 0;
 	length = ft_strlen(s1) + ft_strlen(s2);
-	ptr = malloc(length);
+	ptr = malloc(length + 1);
 	if (ptr == NULL)
 		return (0);
 	ft_strcat_p(ptr, s1, 0);
 	ft_strcat_p(ptr, s2, 1);
+	free(s1);
 	return (ptr);
 }

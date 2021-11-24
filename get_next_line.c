@@ -16,7 +16,6 @@
 #include<unistd.h>
 #include <fcntl.h>
 #include<stdlib.h>
-#define BUFFER_SIZE 300
 #include"get_next_line.h"
 
 int	check_fun(char *s)
@@ -40,7 +39,7 @@ int check_back_s(char *s)
 	index = 0;
 	while (s[index] != '\0')
 	{
-		if(s[index] == '\n')
+		if(s[index] == '\n'|| s[index + 1] == '\0')
 			return (index);
 		index++;
 	}
@@ -49,10 +48,14 @@ int check_back_s(char *s)
 
 char	*d_line(char *line)
 {
-	int		i;
+	size_t		i;
 	char	*str;
 
+    if (*line == '\n')
+		return 0;
 	i = check_back_s(line);
+	if(i == ft_strlen(line))
+		i--;
 	if(line[i + 1] != '\0')
 		str = ft_strdup(line + i + 1);
 	else
@@ -60,6 +63,7 @@ char	*d_line(char *line)
 	line[i + 1] = 0;
 	return (str);
 }
+//-fsanitize=address -g
 
 char	*get_next_line(int fd)
 {
@@ -67,40 +71,64 @@ char	*get_next_line(int fd)
 	char		*line;
 	static char	*str;
 	ssize_t		k;
-
-	if(BUFFER_SIZE <= 0)
-		return (0);
-	line = malloc(BUFFER_SIZE);
+	char		*temp;
+     
+	temp= NULL;
+	line = calloc(BUFFER_SIZE + 1,1);
 	if (str != NULL)
 		line = ft_strjoin(line, str);
-	while (check_fun(line) && k != 0)
-	{
-		ptr = malloc(BUFFER_SIZE);
-	   	k = read(fd, ptr, BUFFER_SIZE);
-		if(k < 0)
-			return (0);
+	while (check_fun(line))
+	{ 	//printf("{ k <%zd> str <%s> ptr <%s> line <%s> } \n",k , str,ptr,line);
+		ptr = malloc(BUFFER_SIZE + 1);
+		k = read(fd, ptr, BUFFER_SIZE + 1);
+		ptr[k] = '\0';
+		if(k == 0 || k == -1) 
+		{
+			if (ft_strlen(line) == 0) 
+				{
+					free(line);
+					free(ptr);
+					return 0;
+				}
+			free(ptr);
+			return line;
+		}
 		line = ft_strjoin(line, ptr);
-	}
-	str = d_line(line);
-	if (*line == '\n')
-		return (get_next_line(fd));
-	return (line);
+		free(ptr);
+	}		
+	if (!check_fun(line))
+		{
+			temp = str;
+			str = d_line(line);
+			free(temp);
+			return (line);
+		}
+		    free(line);
+			free(str);
+			free(temp);
+			return 0;
 }
+//printf("line {%s} ptr <%s> str <%s>", line, ptr,str);
+// int main()
+// {
 
-int main()
-{
+//  //int fd = open("nl", O_RDWR);
+//  int fd = open("41_no_nl", O_RDWR); 
+//  char *c;
+// //  char *line; 
+// //  line = malloc(BUFFER_SIZE);
+// //  int k = read(fd, line, BUFFER_SIZE);
+// // printf(" %d ",k);
+// int index = 0;
+// while (1)
+//  {
+//      c = get_next_line(fd);
 
- int fd = open("test.txt", O_RDWR);
- char *c; 
- int bytes = 0;
- 
-while (1)
- {
-     c = get_next_line(fd);
-	 if(*c == 0)
-		 break;
-	 printf("-----> %s", c);
-	 bytes++;
- }
- close(fd);  
-}
+// 	 printf("----->%s\n", c);
+// 	 if(c == 0)
+// 	     break;
+// 	 index++;
+// 	// system("leaks a.out");
+//  }
+//  close(fd); 
+// }
