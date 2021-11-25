@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 #include <stdlib.h>
 #include<stdio.h>
+
 size_t	ft_strlen(const char *str)
 {
 	int	i;
@@ -21,23 +22,38 @@ size_t	ft_strlen(const char *str)
 	return (i);
 }
 
-char	*ft_strdup(char *src)
+static int	min_mal(int a, int b)
 {
-	char	*ptr;
-	int		len;
-	int		i;
+	if (a < b)
+		return (a);
+	return (b);
+}
 
-	i = 0;
-	len = ft_strlen(src);
-	ptr = malloc((len + 1) * sizeof (char));
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	unsigned int	index;
+	unsigned int	len_sub_str;
+	char			*ptr;
+
+	index = 0;
+	if (!s)
+		return (0);
+	if (start >= ft_strlen(s))
+	{
+		ptr = malloc(1);
+		ptr[0] = 0;
+		return (ptr);
+	}
+	len_sub_str = min_mal(ft_strlen(s) - start, len);
+	ptr = malloc(len_sub_str + 1);
 	if (ptr == NULL)
 		return (0);
-	while (src[i] != '\0')
+	while (index < len_sub_str && s[index] != '\0')
 	{
-		ptr[i] = src[i];
-		i++;
+		ptr[index] = s[index + start];
+		index++;
 	}
-	ptr[i] = '\0';
+	ptr[index] = '\0';
 	return (ptr);
 }
 
@@ -66,6 +82,11 @@ char	*ft_strjoin(char *s1, char *s2)
 	int		length;
 	char	*ptr;
 
+	if (!s1)
+	{
+		s1 = malloc(1);
+		s1[0] = '\0';
+	}
 	index = 0;
 	length = ft_strlen(s1) + ft_strlen(s2);
 	ptr = malloc(length + 1);

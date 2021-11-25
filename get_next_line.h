@@ -21,5 +21,6 @@ int		check_fun(char *s);
 int		check_back_s(char *s);
 char	*d_line(char *line);
 char	*get_next_line(int fd);
+char	*ft_substr(char const *s, unsigned int start, size_t len);
 
 #endif

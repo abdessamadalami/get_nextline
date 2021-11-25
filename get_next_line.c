@@ -18,102 +18,108 @@
 #include<stdlib.h>
 #include"get_next_line.h"
 
-int	check_fun(char *s)
+char	*ft_strdup(char *src)
 {
-	int index;
+	char	*ptr;
+	int		len;
+	int		i;
 
-	index = 0;
-	while (s[index] != '\0')
+	i = 0;
+	len = ft_strlen(src);
+	ptr = malloc((len + 1) * sizeof (char));
+	if (ptr == NULL)
+		return (0);
+	while (src[i] != '\0')
 	{
-		if(s[index] == '\n')
-			return (0);
-		index++;
+		ptr[i] = src[i];
+		i++;
 	}
-	return (1);
+	ptr[i] = '\0';
+	return (ptr);
 }
 
-int check_back_s(char *s)
+int	check_fun(char *s)
 {
-	int index;
+	int	index;
 
+	if (!s)
+		return (-1);
 	index = 0;
 	while (s[index] != '\0')
 	{
-		if(s[index] == '\n'|| s[index + 1] == '\0')
+		if (s[index] == '\n')
 			return (index);
 		index++;
 	}
-	return (0);
+	return (-1);
 }
 
-char	*d_line(char *line)
+char	*line_remainder(char *src, int startindex)
 {
-	size_t		i;
-	char	*str;
+	char	*tmp;
+	char	*line;
 
-    if (*line == '\n')
-		return 0;
-	i = check_back_s(line);
-	if(i == ft_strlen(line))
-		i--;
-	if(line[i + 1] != '\0')
-		str = ft_strdup(line + i + 1);
-	else
-		str = 0;
-	line[i + 1] = 0;
-	return (str);
+	tmp = src;
+	line = ft_strdup(src + startindex + 1);
+	free(tmp);
+	return (line);
 }
 //-fsanitize=address -g
 
+char	*read_join(int fd, char *str, int *k)
+{
+	char	*ptr;
+
+	*k = 1;
+	ptr = malloc(BUFFER_SIZE + 1);
+	while (check_fun(str) == -1 && *k != 0)
+	{
+		*k = read(fd, ptr, BUFFER_SIZE);
+		if (*k == -1)
+		{
+			free(ptr);
+			return (NULL);
+		}
+		ptr[*k] = '\0';
+		str = ft_strjoin(str, ptr);
+	}
+	free(ptr);
+	return (str);
+}
+
 char	*get_next_line(int fd)
 {
-	char		*ptr;
-	char		*line;
 	static char	*str;
-	ssize_t		k;
-	char		*temp;
-     
-	temp= NULL;
-	line = calloc(BUFFER_SIZE + 1,1);
-	if (str != NULL)
-		line = ft_strjoin(line, str);
-	while (check_fun(line))
-	{ 	//printf("{ k <%zd> str <%s> ptr <%s> line <%s> } \n",k , str,ptr,line);
-		ptr = malloc(BUFFER_SIZE + 1);
-		k = read(fd, ptr, BUFFER_SIZE + 1);
-		ptr[k] = '\0';
-		if(k == 0 || k == -1) 
-		{
-			if (ft_strlen(line) == 0) 
-				{
-					free(line);
-					free(ptr);
-					return 0;
-				}
-			free(ptr);
-			return line;
-		}
-		line = ft_strjoin(line, ptr);
-		free(ptr);
-	}		
-	if (!check_fun(line))
-		{
-			temp = str;
-			str = d_line(line);
-			free(temp);
-			return (line);
-		}
-		    free(line);
-			free(str);
-			free(temp);
-			return 0;
+	int			k;
+	char		*line;
+	int			index_line;
+
+	str = read_join(fd, str, &k);
+	if (str == NULL)
+		return (0);
+	if (ft_strlen(str) == 0 && k == 0)
+	{
+		free(str);
+		str = NULL;
+		return (0);
+	}
+	index_line = check_fun(str);
+	if (index_line == -1)
+	{
+		line = str;
+		str = (NULL);
+		return (line);
+	}
+	line = ft_substr(str, 0, index_line + 1);
+	str = line_remainder(str, index_line);
+	return (line);
 }
 //printf("line {%s} ptr <%s> str <%s>", line, ptr,str);
 // int main()
 // {
 
 //  //int fd = open("nl", O_RDWR);
-//  int fd = open("41_no_nl", O_RDWR); 
+//  int fd = open("text.txt", O_RDWR); 
 //  char *c;
 // //  char *line; 
 // //  line = malloc(BUFFER_SIZE);
@@ -124,11 +130,11 @@ char	*get_next_line(int fd)
 //  {
 //      c = get_next_line(fd);
 
-// 	 printf("----->%s\n", c);
+// 	 printf("%s", c);
 // 	 if(c == 0)
 // 	     break;
 // 	 index++;
-// 	// system("leaks a.out");
 //  }
-//  close(fd); 
+//  close(fd);
+//  system("leaks a.out");
 // }
