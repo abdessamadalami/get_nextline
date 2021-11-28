@@ -64,7 +64,6 @@ char	*line_remainder(char *src, int startindex)
 	free(tmp);
 	return (line);
 }
-//-fsanitize=address -g
 
 char	*read_join(int fd, char *str, int *k)
 {
